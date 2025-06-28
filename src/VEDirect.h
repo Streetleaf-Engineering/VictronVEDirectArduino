@@ -53,6 +53,7 @@ enum VE_DIRECT_DATA {
 	VE_SOC,
 	VE_POWER,
 	VE_ALARM,
+	VE_LOAD_CURRENT,
 	VE_LAST_LABEL,
 };
 
@@ -75,7 +76,8 @@ const char ved_labels[VE_LAST_LABEL][VED_MAX_LEBEL_SIZE] PROGMEM = {
 		"HSDS",
 		"SOC",
 		"P",
-		"Alarm"
+		"Alarm",
+		"IL"
 };
 
 class VEDirect {

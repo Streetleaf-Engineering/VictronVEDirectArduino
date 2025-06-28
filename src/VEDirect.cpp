@@ -29,6 +29,10 @@ VEDirect::~VEDirect() {
 uint8_t VEDirect::begin() {
 	// Check connection the serial port
 	VESerial.begin(19200);
+
+	// Remove fluff, do not really understand
+	// why we would keep opening/closing
+	/*
 	if (VESerial) {
 		delay(500);
 		if(VESerial.available()) {
@@ -37,6 +41,7 @@ uint8_t VEDirect::begin() {
 			return 1;
 		}
 	}
+	*/
 	return 0;
 }
 
@@ -55,7 +60,8 @@ int32_t VEDirect::read(uint8_t target) {
 	char* value_str;
 	int8_t b;							// byte read from the stream
 
-	VESerial.begin(VED_BAUD_RATE);
+	// Should already be open
+	// VESerial.begin(VED_BAUD_RATE);
 
 	while (lines > 0) {
 		if (VESerial.available()) {
