@@ -30,6 +30,7 @@
 #define VED_MAX_READ_LOOPS 60000 // How many read loops to be considered a read time-out
 #define VED_MAX_READ_LINES 50	 // How many lines to read looking for a value
 								 // before giving up. Also determines lines for diag dump
+#define VED_MAX_TIMEOUT_INTERVAL 2000 // Timeout in milliseconds burst_read will wait before returning
 #define VED_BAUD_RATE 19200
 
 // Extend this and ved_labels[] for needed inclusions
@@ -86,6 +87,7 @@ public:
 	virtual ~VEDirect();
 	uint8_t begin();
 	int32_t read(uint8_t target);
+	void burst_read(uint8_t targets[], int32_t return_targets[][2], uint8_t num_targets);
 	void copy_raw_to_serial0(); // kept for backwards compatibility
 private:
 	HardwareSerial& VESerial;
