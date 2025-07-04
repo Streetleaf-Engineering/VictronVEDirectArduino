@@ -91,7 +91,8 @@ int32_t VEDirect::read(uint8_t target) {
 			}
 
 			label = strtok(line, "\t");
-			if (strcmp_P(label, ved_labels[target]) == 0) {
+
+			if (label && (strcmp(label, ved_labels[target]) == 0)) {
 				value_str = strtok(0, "\t");
 				if (value_str[0] == 'O') { 		//ON OFF type
 					if (value_str[1] == 'N') {
@@ -116,6 +117,30 @@ int32_t VEDirect::read(uint8_t target) {
 	return ret;
 }
 
+/**
+ * @name: burst_read
+ * 
+ * @brief: The following function reads data from ther serial port,
+ * parses it for data from the MPPT, and sends relevant information back to the calling fuction.
+ * Note that this function will only monitor the serial port for a maximum of VED_MAX_TIMEOUT 
+ * interval before the function returns. This is so the function does not block when
+ * no new data is being sent from the MPPT.
+ * 
+ * @param[in]: uint8_t targets - A list of MPPT variables the calling function
+ * would like to capture from the MPPT.
+ * 
+ * @param[in]: uint8_t num_targets - Number of targets this function will search for
+ * in the serial stream. This must match the number of items in the 'targets' array.
+ * 
+ * @param[out]: int32_t return_targets - A 2-D array that is used by this function to store
+ * the requested data from 'targets' and to be sent back to the the calling function. The first colum
+ * in the array is to store the data captured from the serial port. The second column in the array
+ * is used a tag to mark which data got updated on the burst_read. If a 'target' was captured from the
+ * serial stream, the second column in 'return_targets' is marked with the target's ved_label. 
+ * 
+ * @return: NONE
+ * 
+ */
 void VEDirect::burst_read(uint8_t targets[], int32_t return_targets[][2], uint8_t num_targets) {
 	uint16_t loops = VED_MAX_READ_LOOPS;
 	uint8_t num_targets_found = 0;
@@ -151,23 +176,25 @@ void VEDirect::burst_read(uint8_t targets[], int32_t return_targets[][2], uint8_
 
 			label = strtok(line, "\t");
 
-			for (uint8_t i = 0; i < num_targets; i++) {
-				if (strcmp_P(label, ved_labels[targets[i]]) == 0) {
-					value_str = strtok(0, "\t");
-					if (value_str[0] == 'O') { 		//ON OFF type
-						if (value_str[1] == 'N') {
-							return_targets[i][0] = 1;	// ON
+			if (label) {
+				for (uint8_t i = 0; i < num_targets; i++) {
+					if (strcmp(label, ved_labels[targets[i]]) == 0) {
+						value_str = strtok(0, "\t");
+						if (value_str[0] == 'O') { 		//ON OFF type
+							if (value_str[1] == 'N') {
+								return_targets[i][0] = 1;	// ON
+							} else {
+								return_targets[i][0] = 0;	// OFF
+							}
 						} else {
-							return_targets[i][0] = 0;	// OFF
+							sscanf(value_str, "%ld", &return_targets[i][0]);
 						}
-					} else {
-						sscanf(value_str, "%ld", &return_targets[i][0]);
+						if (!(return_targets[i][1])) {
+							return_targets[i][1] = targets[i];
+							num_targets_found++;
+						}
+						break;
 					}
-					if (!(return_targets[i][1])) {
-						return_targets[i][1] = targets[i];
-						num_targets_found++;
-					}
-					break;
 				}
 			}
 			// Cleanup
