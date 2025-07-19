@@ -30,7 +30,7 @@
 #define VED_MAX_READ_LOOPS 60000 // How many read loops to be considered a read time-out
 #define VED_MAX_READ_LINES 50	 // How many lines to read looking for a value
 								 // before giving up. Also determines lines for diag dump
-#define VED_MAX_TIMEOUT_INTERVAL 2000 // Timeout in milliseconds burst_read will wait before returning
+#define VED_MAX_TIMEOUT_INTERVAL 1100 // Timeout in milliseconds burst_read will wait before returning
 #define VED_BAUD_RATE 19200
 
 // Extend this and ved_labels[] for needed inclusions
