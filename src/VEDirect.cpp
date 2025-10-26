@@ -144,7 +144,7 @@ int32_t VEDirect::read(uint8_t target) {
 void VEDirect::burst_read(uint8_t targets[], int32_t return_targets[][2], uint8_t num_targets) {
 	uint16_t loops = VED_MAX_READ_LOOPS;
 	uint8_t num_targets_found = 0;
-	char line[VED_LINE_SIZE] = "\0";	// Line buffer
+	char line[VED_LINE_SIZE] = "";	// Line buffer
 	uint8_t idx = 0;					// Line buffer index
 	char* label;
 	char* value_str;
@@ -163,7 +163,7 @@ void VEDirect::burst_read(uint8_t targets[], int32_t return_targets[][2], uint8_
 					if (b == '\n') { 				// EOL
 						break;
 					} else {
-						if (idx < VED_LINE_SIZE) {
+						if (idx < (VED_LINE_SIZE-1)) {
 							line[idx++] = b;		// Add it to the buffer
 						} else {
 							// Buffer overrun
@@ -180,6 +180,9 @@ void VEDirect::burst_read(uint8_t targets[], int32_t return_targets[][2], uint8_
 				for (uint8_t i = 0; i < num_targets; i++) {
 					if (strcmp(label, ved_labels[targets[i]]) == 0) {
 						value_str = strtok(0, "\t");
+						if (!value_str) {
+							break;
+						}
 						if (value_str[0] == 'O') { 		//ON OFF type
 							if (value_str[1] == 'N') {
 								return_targets[i][0] = 1;	// ON
@@ -189,7 +192,7 @@ void VEDirect::burst_read(uint8_t targets[], int32_t return_targets[][2], uint8_
 						} else {
 							sscanf(value_str, "%ld", &return_targets[i][0]);
 						}
-						if (!(return_targets[i][1])) {
+						if (return_targets[i][1] == 0) {
 							return_targets[i][1] = targets[i];
 							num_targets_found++;
 						}
